@@ -75,27 +75,23 @@ def download_model_to_image(model_dir, model_name):
 # Then we’ll use `run_function` to execute `download_model_to_image`
 # and save the resulting files to the container image -- that way we don't need
 # to redownload the weights every time we change the server's code or start up more instances of the server.
+
+cuda_version = "12.4.0"  # should be no greater than host CUDA version
+flavor = "devel"  #  includes full CUDA toolkit
+os = "ubuntu22.04"
+tag = f"{cuda_version}-{flavor}-{os}"
+
 image = (
-    modal.Image.debian_slim(python_version="3.11")
+    modal.Image.from_registry(f"nvidia/cuda:{tag}", add_python="3.11")
     .apt_install("git")
-    .pip_install("pip", "packaging", extra_options="--upgrade")
-    .pip_install(
-        "packaging",
-        "numpy==1.26.4",
-        "torch==2.2.1",
-        "ray==2.10.0",
-        "hf-transfer==0.1.4",
-        "pytz==2022.1",
-        "easydict==1.13",
-        "transformers==4.40.1",
-        "vllm==0.4.1",
-        "pandas==1.4.3",
-        "tabulate==0.9.0",
-        "termcolor==2.4.0",
-        "accelerate==0.33.0",
-    )
-    .pip_install(
-        "flash_attn==2.6.3", extra_options="--no-build-isolation"
+    .copy_local_dir(".")
+    .run_commands(
+        "curl -LsSf https://astral.sh/uv/install.sh | sh", # install uv
+        "uv venv",
+        "source .venv/bin/activate",
+        "uv pip install .[server]",
+        "uv add hatchling editables",
+        "uv add flash-attn --no-build-isolation",
     )
     # Use the barebones hf-transfer package for maximum download speeds. Varies from 100MB/s to 1.5 GB/s,
     # so download times can vary from under a minute to tens of minutes.
