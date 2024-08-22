@@ -144,6 +144,24 @@ You can use `CUDA_VISIBLE_DEVICES=0,1,···` to specify the GPU devices. The ex
 python -m prover.summarize --config=configs/RMaxTS.py --log_dir=logs/RMaxTS_results
 ```
 
+### 5.1 Running a remote server on Modal [In progress]
+Modal allows for pretty easy remote execution on Docker containers.
+It provides services at the container abstraction rather than the server level,
+meaning you don't have to deal with provisioning anything yourself.
+
+To run DeepSeekProver on Modal, follow these [instructions](https://modal.com/docs/examples/vllm_inference):
+1. install [modal](https://modal.com/docs/guide)
+```
+pip install modal
+modal setup
+```
+2. Setup your [secret key for HF](https://modal.com/docs/guide/secrets#secrets)
+3. Deploy the modal app
+```
+modal deploy deploy_prover.py
+modal run deploy_prover.py
+```
+
 ## 6. Questions and Bugs
 
 * For general questions and discussions, please use [GitHub Discussions](https://github.com/deepseek-ai/DeepSeek-Prover-V1.5/discussions).  

@@ -3,4 +3,7 @@ from .scheduler import Scheduler, ProcessScheduler
 
 from .search import SearchProcess
 
-from .generator import GeneratorProcess
+try:
+    from .generator import GeneratorProcess
+except ImportError as e:
+    print(e)

@@ -3,8 +3,8 @@ from prover.algorithms import RMaxTS
 
 
 # dataset
-data_path = 'datasets/minif2f.jsonl'
-data_split = 'test'
+data_path = "datasets/minif2f.jsonl"
+data_split = "test"
 data_repeat = 16  # run 16 * 6400
 
 # verifier
@@ -14,9 +14,9 @@ lean_timeout = 300
 
 # model
 batch_size = 512
-model_path = 'deepseek-ai/DeepSeek-Prover-V1.5-RL'
+model_path = "deepseek-ai/DeepSeek-Prover-V1.5-RL"
 model_args = AttrDict(
-    mode='cot', # `cot` or `non-cot`
+    mode="cot",  # `cot` or `non-cot`
     temperature=1,
     max_tokens=2048,
     top_p=0.95,
