@@ -36,7 +36,8 @@ import time
 import modal
 
 MODEL_DIR = "/model"
-MODEL_NAME = "arbius/DeepSeek-Prover-V1.5-RL-GGUF"
+#MODEL_NAME = "arbius/DeepSeek-Prover-V1.5-RL-GGUF"
+MODEL_NAME = "deepseek-ai/DeepSeek-Prover-V1.5-RL"
 
 
 # ## Define a container image
@@ -93,6 +94,7 @@ image = (
         "uv pip install --quiet --no-progress --system .[server]",
         "uv pip install --quiet --no-progress --system hatchling editables ninja setuptools packaging wheel",
         "uv pip install --quiet --no-progress --system flash-attn --no-build-isolation",
+        "uv pip install --quiet --no-progress --system hf-transfer",
     )
     # Use the barebones hf-transfer package for maximum download speeds. Varies from 100MB/s to 1.5 GB/s,
     # so download times can vary from under a minute to tens of minutes.
@@ -101,9 +103,7 @@ image = (
     .run_function(
         download_model_to_image,
         secrets=[
-            modal.Secret.from_name(
-                "my-huggingface-secret", required_keys=["HF_TOKEN"]
-            )
+            modal.Secret.from_name("my-huggingface-secret")
         ],
         timeout=60 * 20,
         kwargs={"model_dir": MODEL_DIR, "model_name": MODEL_NAME},
@@ -216,4 +216,4 @@ def main():
         prompt + code_prefix,
     ]
     model = Model()
-    model.generate.remote(questions)
+    print(model.generate.remote(questions))

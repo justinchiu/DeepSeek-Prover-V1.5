@@ -25,4 +25,5 @@ server = [
     "termcolor",
     "accelerate==0.33.0",
     "huggingface_hub",
+    "hf-transfer",
 ]
