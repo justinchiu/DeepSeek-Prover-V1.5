@@ -85,7 +85,7 @@ image = (
     modal.Image.from_registry(f"nvidia/cuda:{tag}", add_python="3.11")
     .apt_install("git")
     .apt_install("curl")
-    .pip_install("pip", "packaging", "setuptools", "uv", extra_options="--upgrade --quiet --no-progress")
+    .pip_install("pip", "packaging", "setuptools", "uv")
     .copy_local_dir(".")
     .run_commands(
         "uv venv",
