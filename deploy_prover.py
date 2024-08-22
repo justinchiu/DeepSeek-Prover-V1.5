@@ -147,10 +147,10 @@ class Model:
         prompts = [self.template.format(user=q) for q in user_questions]
 
         sampling_params = vllm.SamplingParams(
-            temperature=0.75,
-            top_p=0.99,
-            max_tokens=256,
-            presence_penalty=1.15,
+            temperature=1.0,
+            top_p=0.95,
+            max_tokens=2048,
+            n=1,
         )
         start = time.monotonic_ns()
         result = self.llm.generate(prompts, sampling_params)
