@@ -78,8 +78,8 @@ def download_model_to_image(model_dir, model_name):
 
 cuda_version = "12.4.1"  # should be no greater than host CUDA version
 flavor = "devel"  #  includes full CUDA toolkit
-os = "ubuntu22.04"
-tag = f"{cuda_version}-{flavor}-{os}"
+ios = "ubuntu22.04"
+tag = f"{cuda_version}-{flavor}-{ios}"
 
 image = (
     modal.Image.from_registry(f"nvidia/cuda:{tag}", add_python="3.11")
@@ -88,11 +88,11 @@ image = (
     .pip_install("pip", "packaging", "setuptools", "uv")
     .copy_local_dir(".")
     .run_commands(
-        "uv venv",
-        ". .venv/bin/activate",
-        "uv pip install --quiet --no-progress .[server]",
-        "uv add hatchling editables ninja setuptools packaging",
-        "uv add flash-attn --no-build-isolation",
+        #"uv venv",
+        #". .venv/bin/activate",
+        "uv pip install --quiet --no-progress --system .[server]",
+        "uv pip install --quiet --no-progress --system hatchling editables ninja setuptools packaging wheel",
+        "uv pip install --quiet --no-progress --system flash-attn --no-build-isolation",
     )
     # Use the barebones hf-transfer package for maximum download speeds. Varies from 100MB/s to 1.5 GB/s,
     # so download times can vary from under a minute to tens of minutes.
