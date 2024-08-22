@@ -1,6 +1,5 @@
 import re
 
-import torch
 from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
 

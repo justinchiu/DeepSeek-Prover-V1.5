@@ -1,13 +1,10 @@
 import os
 import time
 import copy
-import json
 import pickle
 from pathlib import Path
 
-import torch
 import torch.multiprocessing as mp
-import numpy as np
 
 from prover.utils import AttrDict, get_datetime
 

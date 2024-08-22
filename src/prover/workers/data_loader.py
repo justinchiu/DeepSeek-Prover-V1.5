@@ -1,7 +1,6 @@
 import os
 import copy
 
-import torch
 import torch.multiprocessing as mp
 
 from prover.utils import load_jsonl_objects

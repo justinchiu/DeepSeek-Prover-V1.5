@@ -108,13 +108,11 @@ image = (
     )
 )
 
-app = modal.App(f"prover", image=image)
+app = modal.App("prover", image=image)
 
 # Using `image.imports` allows us to have a reference to vLLM in global scope without getting an error when our script executes locally.
 with image.imports():
     import vllm
-    import prover
-    import re
 
 # ## Encapulate the model in a class
 #

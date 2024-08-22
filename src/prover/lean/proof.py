@@ -1,7 +1,4 @@
-import re
-import json
 
-import numpy as np
 
 from prover.utils import AttrDict, LEAN4_DEFAULT_HEADER
 

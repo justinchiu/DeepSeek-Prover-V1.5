@@ -1,7 +1,4 @@
 import os
-import copy
-import time
-import warnings
 import argparse
 
 import torch
@@ -14,7 +11,7 @@ from prover.workers import (
     SearchProcess,
 )
 from prover.lean.verifier import Lean4ServerScheduler
-from prover.utils import get_datetime, load_config, AttrDict
+from prover.utils import get_datetime, load_config
 
 
 if __name__ == "__main__":

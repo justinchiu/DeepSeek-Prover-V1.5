@@ -1,11 +1,10 @@
 import os
 import time
 
-import torch
 import torch.multiprocessing as mp
 from vllm import LLM, SamplingParams
 
-from prover.utils import AttrDict, MODEL_FORMAT
+from prover.utils import MODEL_FORMAT
 
 
 class GeneratorProcess(mp.Process):

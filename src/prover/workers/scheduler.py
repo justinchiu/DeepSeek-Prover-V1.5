@@ -1,13 +1,10 @@
-import os
 import time
 import ctypes
-import subprocess
 import threading
 import multiprocessing as mp
 
 import numpy as np
 
-from prover.utils import AttrDict
 
 
 class TaskQueue(object):

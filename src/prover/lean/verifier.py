@@ -5,12 +5,10 @@ import ctypes
 import resource
 import tempfile
 import traceback
-import threading
 import subprocess
 import multiprocessing as mp
 from pprint import pprint
 
-import numpy as np
 
 from prover.lean.ast_parser import lean4_parser
 from prover.workers import ProcessScheduler
