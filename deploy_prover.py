@@ -131,20 +131,19 @@ GPU_CONFIG = modal.gpu.A100(count=1)
 class Model:
     @modal.enter()
     def load(self):
-        self.template = (
-            "<start_of_turn>user\n{user}<end_of_turn>\n<start_of_turn>model\n"
-        )
-
         # Load the model. Tip: Some models, like MPT, may require `trust_remote_code=true`.
         self.llm = vllm.LLM(
             MODEL_DIR,
             enforce_eager=True,  # skip graph capturing for faster cold starts
             tensor_parallel_size=GPU_CONFIG.count,
+            max_num_batched_tokens=8192,
+            seed=1,
+            trust_remote_code=True,
         )
 
     @modal.method()
     def generate(self, user_questions):
-        prompts = [self.template.format(user=q) for q in user_questions]
+        prompts = user_questions
 
         sampling_params = vllm.SamplingParams(
             temperature=1.0,
@@ -216,4 +215,4 @@ def main():
         prompt + code_prefix,
     ]
     model = Model()
-    print(model.generate.remote(questions))
+    (model.generate.remote(questions))
