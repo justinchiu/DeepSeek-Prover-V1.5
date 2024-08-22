@@ -84,13 +84,14 @@ tag = f"{cuda_version}-{flavor}-{os}"
 image = (
     modal.Image.from_registry(f"nvidia/cuda:{tag}", add_python="3.11")
     .apt_install("git")
+    .apt_install("curl")
+    .pip_install("pip", "packaging", "setuptools", "uv", extra_options="--upgrade")
     .copy_local_dir(".")
     .run_commands(
-        "curl -LsSf https://astral.sh/uv/install.sh | sh", # install uv
         "uv venv",
-        "source .venv/bin/activate",
-        "uv pip install .[server]",
-        "uv add hatchling editables",
+        ". .venv/bin/activate",
+        "uv pip install --quiet --no-progress .[server]",
+        "uv add hatchling editables ninja setuptools packaging",
         "uv add flash-attn --no-build-isolation",
     )
     # Use the barebones hf-transfer package for maximum download speeds. Varies from 100MB/s to 1.5 GB/s,
