@@ -76,7 +76,7 @@ def download_model_to_image(model_dir, model_name):
 # and save the resulting files to the container image -- that way we don't need
 # to redownload the weights every time we change the server's code or start up more instances of the server.
 
-cuda_version = "12.4.0"  # should be no greater than host CUDA version
+cuda_version = "12.4.1"  # should be no greater than host CUDA version
 flavor = "devel"  #  includes full CUDA toolkit
 os = "ubuntu22.04"
 tag = f"{cuda_version}-{flavor}-{os}"
@@ -85,7 +85,7 @@ image = (
     modal.Image.from_registry(f"nvidia/cuda:{tag}", add_python="3.11")
     .apt_install("git")
     .apt_install("curl")
-    .pip_install("pip", "packaging", "setuptools", "uv", extra_options="--upgrade")
+    .pip_install("pip", "packaging", "setuptools", "uv", extra_options="--upgrade --quiet --no-progress")
     .copy_local_dir(".")
     .run_commands(
         "uv venv",
