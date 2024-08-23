@@ -10,6 +10,8 @@ dependencies = [
     "numpy",
     "pytz",
     "easydict",
+    "grpclib>=0.4.7",
+    "h2>=4.1.0",
 ]
 
 [build-system]
