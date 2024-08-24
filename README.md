@@ -156,9 +156,13 @@ pip install modal
 modal setup
 ```
 2. Setup your [secret key for HF](https://modal.com/docs/guide/secrets#secrets)
-3. Deploy the modal app
+3. Deploy the prover and verifier modal apps
 ```
 modal deploy deploy_prover.py
+modal deploy deploy_verifier.py
+```
+4. Run the prover app
+```
 modal run deploy_prover.py
 ```
 
