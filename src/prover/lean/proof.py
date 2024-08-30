@@ -1,5 +1,3 @@
-
-
 from prover.utils import AttrDict, LEAN4_DEFAULT_HEADER
 
 

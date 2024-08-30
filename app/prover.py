@@ -87,7 +87,11 @@ image = (
     .apt_install("git")
     .apt_install("curl")
     .pip_install("pip", "packaging", "setuptools", "uv")
-    .copy_local_dir(".")
+    .copy_local_dir("./src")
+    .copy_local_dir("./configs")
+    .copy_local_file("./pyproject.toml")
+    .copy_local_file("./requirements.txt")
+    .copy_local_file("./README.md")
     .run_commands(
         # "uv venv",
         # ". .venv/bin/activate",

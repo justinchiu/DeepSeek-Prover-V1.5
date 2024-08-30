@@ -12,15 +12,20 @@ verifier_image = (
     .apt_install("wget")
     .apt_install("git")
     .apt_install("curl")
-    .workdir("/root/mathlib4")
-    .copy_local_dir("mathlib4")
     .workdir("/root")
-    .env({
-       "LEAN_VERSION": "leanprover/lean4:nightly",
-    })
+    .copy_local_file("mathlib4.tar.gz")
+    .run_commands("tar xzvf mathlib4.tar.gz")
+    .env(
+        {
+            # "LEAN_VERSION": "leanprover/lean4:nightly",
+            "LEAN_VERSION": "leanprover/lean4:v4.9.0-rc1",
+        }
+    )
     .run_commands(
         "curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain $LEAN_VERSION",
     )
+    .workdir("/root/mathlib4")
+    .run_commands("/root/.elan/bin/lake build")
 )
 
 with verifier_image.imports():
@@ -29,6 +34,7 @@ with verifier_image.imports():
     import tempfile
     import subprocess
     import traceback
+
 
 @app.function(image=verifier_image)
 def verify_lean4_file(
@@ -43,9 +49,13 @@ def verify_lean4_file(
     premises=False,
     tactics=False,
 ):
-    import os
-    print("CURRENT DIRECTORY", os.getcwd(), os.listdir())
-    print("ROOT", os.listdir("/"))
+    if verbose:
+        import os
+
+        print("CURRENT DIRECTORY", os.getcwd(), os.listdir())
+        print("ROOT", os.listdir("/"))
+        print("ELAN", os.listdir("/root/.elan/bin"))
+        print("MATHLIB", os.listdir("/root/mathlib4"))
     command = dict(
         cmd=code, allTactics=allTactics, ast=ast, tactics=tactics, premises=premises
     )
@@ -68,7 +78,9 @@ def verify_lean4_file(
                 cwd=lean_workspace,
                 timeout=timeout,
             )
-        print(outputs.stdout)
+        if verbose:
+            print("stdout", outputs.stdout)
+            print("stderr", outputs.stderr)
         result = json.loads(outputs.stdout)
         ast_results = (
             lean4_parser(code, result["ast"])
@@ -110,6 +122,7 @@ def verify_lean4_file(
     result["verify_time"] = time.time() - start_time
     return result
 
+
 @app.local_entrypoint()
 def main():
     code = """import Mathlib
@@ -135,5 +148,4 @@ theorem amc12b_2003_p6 (a r : ℝ) (u : ℕ → ℝ) (h₀ : ∀ k, u k = a * r 
     nlinarith
   simpa [h₀] using h₄
 """
-    for result in verify_lean4_file.map([code]):
-        print(result)
+    print(verify_lean4_file.remote(code, verbose=True))

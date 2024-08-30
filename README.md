@@ -156,12 +156,17 @@ pip install modal
 modal setup
 ```
 2. Setup your [secret key for HF](https://modal.com/docs/guide/secrets#secrets)
-3. Deploy the prover and verifier modal apps
+3. Build and tar mathlib
+```
+build mathlib4...
+tar czvf mathlib4.tar.gz mathlib4
+```
+4. Deploy the prover and verifier modal apps
 ```
 modal deploy app.prover
 modal deploy app.verifier
 ```
-4. Run the prover app
+5. Run the prover app
 ```
 modal run app.prover
 ```

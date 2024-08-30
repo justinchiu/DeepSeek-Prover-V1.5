@@ -6,7 +6,6 @@ import multiprocessing as mp
 import numpy as np
 
 
-
 class TaskQueue(object):
     def __init__(self, batch_size=512, name="test"):
         self.name = name
