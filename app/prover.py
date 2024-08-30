@@ -228,7 +228,7 @@ def main():
     result = prompt + code_prefix + generated_text
 
     # evaluate generated text with another modal function
-    verify = modal.Function.lookup("deploy_verifier", "verify_lean4_file")
+    verify = modal.Function.lookup("verifier", "verify_lean4_file")
     request = re.search(r"```lean4\n(.*?)\n```", result, re.DOTALL).group(1)
     print(verify.remote(request))
 
