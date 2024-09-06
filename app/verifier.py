@@ -1,9 +1,13 @@
 import modal
+from pydantic import BaseModel
+
 
 MATHLIB_PATH = "/root/mathlib4"
 DEFAULT_LAKE_PATH = "/root/.elan/bin/lake"
 DEFAULT_LEAN_WORKSPACE = "/root/mathlib4/"
 
+class VerifyRequest(BaseModel):
+    code: str
 
 app = modal.App("verifier")
 
@@ -34,6 +38,7 @@ with verifier_image.imports():
     import tempfile
     import subprocess
     import traceback
+    import asyncio
 
 
 @app.function(image=verifier_image)
@@ -123,6 +128,19 @@ def verify_lean4_file(
     return result
 
 
+@app.function()
+@modal.web_endpoint(method="POST")
+async def verify(requests: list[VerifyRequest]):
+    """
+    Execute evaluation of each result async and return all results
+    """
+    results = await asyncio.gather(*[
+        verify_lean4_file.remote.aio(r.code)
+        for r in requests
+    ])
+    return results
+
+
 @app.local_entrypoint()
 def main():
     code = """import Mathlib
@@ -149,3 +167,5 @@ theorem amc12b_2003_p6 (a r : ℝ) (u : ℕ → ℝ) (h₀ : ∀ k, u k = a * r 
   simpa [h₀] using h₄
 """
     print(verify_lean4_file.remote(code, verbose=True))
+
+
