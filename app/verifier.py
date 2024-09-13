@@ -1,6 +1,6 @@
 import modal
 from pydantic import BaseModel
-
+import prover
 
 MATHLIB_PATH = "/root/mathlib4"
 DEFAULT_LAKE_PATH = "/root/.elan/bin/lake"
@@ -41,7 +41,13 @@ with verifier_image.imports():
     import asyncio
 
 
-@app.function(image=verifier_image)
+@app.function(
+    image=verifier_image,
+    mounts=[
+        modal.Mount.from_local_python_packages("prover"),
+    ],
+    cpu=16.0,
+)
 def verify_lean4_file(
     code,
     lake_path=DEFAULT_LAKE_PATH,
@@ -166,6 +172,12 @@ theorem amc12b_2003_p6 (a r : ℝ) (u : ℕ → ℝ) (h₀ : ∀ k, u k = a * r 
     nlinarith
   simpa [h₀] using h₄
 """
+    #print(verify_lean4_file.remote(code, verbose=True))
+    import datasets
+    dataset = datasets.load_dataset("cat-searcher/minif2f-lean4")
+    sample = dataset["test"][0]
+    code = "import Mathlib\n" + sample["formal_statement"]
+    print(code)
     print(verify_lean4_file.remote(code, verbose=True))
 
 

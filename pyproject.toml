@@ -12,6 +12,7 @@ dependencies = [
     "easydict",
     "grpclib>=0.4.7",
     "h2>=4.1.0",
+    "datasets>=3.0.0",
 ]
 
 [build-system]
