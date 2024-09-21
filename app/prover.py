@@ -34,6 +34,8 @@ import os
 import time
 
 import modal
+import pydantic
+from typing import Optional
 
 MODEL_DIR = "/model"
 # MODEL_NAME = "arbius/DeepSeek-Prover-V1.5-RL-GGUF"
@@ -190,6 +192,7 @@ class Model:
             ray.shutdown()
 
 
+
 # ## Run the model
 # We define a [`local_entrypoint`](/docs/guide/apps#entrypoints-for-ephemeral-apps) to call our remote function
 # sequentially for a list of inputs. Run it by executing the command `modal run vllm_inference.py`.
@@ -235,3 +238,18 @@ def main():
     # Expected output (verify_time may vary):
     """{'sorries': [], 'tactics': [], 'errors': [], 'warnings': [{'severity': 'warning', 'pos': {'line': 14, 'column': 7}, 'endPos': {'line': 14, 'column': 10}, 'data': "unused variable `h₁'`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"}, {'severity': 'warning', 'pos': {'line': 15, 'column': 7}, 'endPos': {'line': 15, 'column': 10}, 'data': "unused variable `h₂'`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"}, {'severity': 'warning', 'pos': {'line': 19, 'column': 35}, 'endPos': {'line': 19, 'column': 38}, 'data': 'Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\nnote: this linter can be disabled with `set_option linter.unnecessarySeqFocus false`'}, {'severity': 'warning', 'pos': {'line': 20, 'column': 15}, 'endPos': {'line': 20, 'column': 18}, 'data': 'Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\nnote: this linter can be disabled with `set_option linter.unnecessarySeqFocus false`'}], 'infos': [], 'system_messages': '', 'system_errors': None, 'ast': {}, 'verified_code': "import Mathlib\nimport Aesop\n\nset_option maxHeartbeats 0\n\nopen BigOperators Real Nat Topology Rat\n\n/-- The second and fourth terms of a geometric sequence are $2$ and $6$. Which of the following is a possible first term?\nShow that it is $\x0crac{2\\sqrt{3}}{3}$.-/\ntheorem amc12b_2003_p6 (a r : ℝ) (u : ℕ → ℝ) (h₀ : ∀ k, u k = a * r ^ k) (h₁ : u 1 = 2)\n  (h₂ : u 3 = 6) : u 0 = 2 / Real.sqrt 3 ∨ u 0 = -(2 / Real.sqrt 3) := by\n  simp_all only [Nat.one_eq_succ_zero, Nat.zero_eq, zero_add, Nat.add_succ, Nat.add_zero,\n    Nat.succ_add]\n  have h₁' : a * r = 2 := by simpa [h₀] using h₁\n  have h₂' : a * r ^ 3 = 6 := by simpa [h₀] using h₂\n  have h₃ : r ^ 2 = 3 := by\n    nlinarith\n  have h₄ : a = 2 / Real.sqrt 3 ∨ a = -(2 / Real.sqrt 3) := by\n    apply eq_or_eq_neg_of_sq_eq_sq <;>\n    field_simp <;>\n    nlinarith\n  simpa [h₀] using h₄", 'pass': True, 'complete': True, 'verify_time': 23.28123140335083}"""
 
+
+web_image = modal.Image.debian_slim(python_version="3.10")
+
+class GenerateRequest(pydantic.BaseModel):
+    prompts: list[str]
+    settings: Optional[dict] = None
+
+
+@app.function(image=web_image)
+@modal.web_endpoint(
+    method="POST", label=f"deepseek-prover-web", docs=True
+)
+def generate_web(data: GenerateRequest) -> list[str]:
+    """Generate responses to a batch of prompts, optionally with custom inference settings."""
+    return Model.generate.remote(data.prompts)
