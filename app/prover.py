@@ -68,7 +68,7 @@ def download_model_to_image(model_dir, model_name):
         model_name,
         local_dir=model_dir,
         token=os.environ["HF_TOKEN"],
-        ignore_patterns=["*.pt", "*.gguf"],  # Using safetensors
+        ignore_patterns=["*.pt", "*.gguf", "*.bin"],  # Using safetensors
     )
     move_cache()
 
@@ -97,10 +97,11 @@ image = (
     .run_commands(
         # "uv venv",
         # ". .venv/bin/activate",
-        "uv pip install --quiet --no-progress --system .[server]",
-        "uv pip install --quiet --no-progress --system hatchling editables ninja setuptools packaging wheel",
-        "uv pip install --quiet --no-progress --system flash-attn --no-build-isolation",
-        "uv pip install --quiet --no-progress --system hf-transfer",
+        "uv pip install --quiet --no-progress --system --compile-bytecode .[server]",
+        "uv pip install --quiet --no-progress --system --compile-bytecode vllm==0.4.1",
+        "uv pip install --quiet --no-progress --system --compile-bytecode hatchling editables ninja setuptools packaging wheel",
+        "uv pip install --quiet --no-progress --system --compile-bytecode flash-attn --no-build-isolation",
+        "uv pip install --quiet --no-progress --system --compile-bytecode hf-transfer",
     )
     # Use the barebones hf-transfer package for maximum download speeds. Varies from 100MB/s to 1.5 GB/s,
     # so download times can vary from under a minute to tens of minutes.
@@ -116,10 +117,6 @@ image = (
 
 app = modal.App("prover", image=image)
 
-# Using `image.imports` allows us to have a reference to vLLM in global scope without getting an error when our script executes locally.
-with image.imports():
-    import vllm
-
 # ## Encapulate the model in a class
 #
 # The inference function is best represented with Modal's [class syntax](/docs/guide/lifecycle-functions) and the `@enter` decorator.
@@ -131,11 +128,17 @@ with image.imports():
 GPU_CONFIG = modal.gpu.A100(count=1)
 
 
-@app.cls(gpu=GPU_CONFIG, secrets=[modal.Secret.from_name("my-huggingface-secret")])
+@app.cls(
+    gpu=GPU_CONFIG,
+    secrets=[modal.Secret.from_name("my-huggingface-secret")],
+    image=image,
+)
 class Model:
     @modal.enter()
     def load(self):
         # Load the model. Tip: Some models, like MPT, may require `trust_remote_code=true`.
+        import vllm
+
         self.llm = vllm.LLM(
             MODEL_DIR,
             enforce_eager=True,  # skip graph capturing for faster cold starts
@@ -147,6 +150,8 @@ class Model:
 
     @modal.method()
     def generate(self, user_questions):
+        import vllm
+
         prompts = user_questions
 
         sampling_params = vllm.SamplingParams(
@@ -181,8 +186,11 @@ class Model:
             f"{COLOR['HEADER']}{COLOR['GREEN']}Generated {num_tokens} tokens from {MODEL_NAME} in {duration_s:.1f} seconds,"
             f" throughput = {num_tokens / duration_s:.0f} tokens/second on {GPU_CONFIG}.{COLOR['ENDC']}"
         )
-        # return result
-        return result[0].outputs[0].text
+        return [
+            [gen.text for gen in output.outputs]
+            for output in result
+        ]
+        #return result[0].outputs[0].text
 
     @modal.exit()
     def stop_engine(self):
