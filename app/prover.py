@@ -149,16 +149,23 @@ class Model:
         )
 
     @modal.method()
-    def generate(self, user_questions):
+    def generate(
+        self,
+        user_questions: list[str],
+        temperature=1.0,
+        top_p=0.95,
+        max_tokens=2048,
+        n=1,
+    ):
         import vllm
 
         prompts = user_questions
 
         sampling_params = vllm.SamplingParams(
-            temperature=1.0,
-            top_p=0.95,
-            max_tokens=2048,
-            n=1,
+            temperature=temperature,
+            top_p=top_p,
+            max_tokens=max_tokens,
+            n=n,
         )
         start = time.monotonic_ns()
         result = self.llm.generate(prompts, sampling_params)
@@ -260,4 +267,5 @@ class GenerateRequest(pydantic.BaseModel):
 )
 def generate_web(data: GenerateRequest) -> list[str]:
     """Generate responses to a batch of prompts, optionally with custom inference settings."""
-    return Model.generate.remote(data.prompts)
+    settings = {} if data.settings is None else data.settings
+    return Model.generate.remote(data.prompts, **settings)
