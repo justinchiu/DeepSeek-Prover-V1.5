@@ -262,7 +262,7 @@ class GenerateRequest(pydantic.BaseModel):
     settings: Optional[dict] = None
 
 
-@app.function(image=web_image)
+@app.function(image=web_image, timeout=60*20)
 @modal.web_endpoint(
     method="POST", label=f"deepseek-prover-web", docs=True
 )
