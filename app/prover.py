@@ -132,6 +132,7 @@ GPU_CONFIG = modal.gpu.A100(count=1)
     gpu=GPU_CONFIG,
     secrets=[modal.Secret.from_name("my-huggingface-secret")],
     image=image,
+    timeout=60*20,
 )
 class Model:
     @modal.enter()
