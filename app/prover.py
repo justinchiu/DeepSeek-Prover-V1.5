@@ -181,14 +181,14 @@ class Model:
         }
 
         for output in result:
-            num_tokens += len(output.outputs[0].token_ids)
-            print(
-                f"{COLOR['HEADER']}{COLOR['GREEN']}{output.prompt}",
-                f"\n{COLOR['BLUE']}{output.outputs[0].text}",
-                "\n\n",
-                sep=COLOR["ENDC"],
-            )
-            time.sleep(0.01)
+            for gen in output.outputs:
+                num_tokens += len(gen.token_ids)
+                print(
+                    f"{COLOR['HEADER']}{COLOR['GREEN']}{output.prompt}",
+                    f"\n{COLOR['BLUE']}{gen.text}",
+                    "\n\n",
+                    sep=COLOR["ENDC"],
+                )
         print(
             f"{COLOR['HEADER']}{COLOR['GREEN']}Generated {num_tokens} tokens from {MODEL_NAME} in {duration_s:.1f} seconds,"
             f" throughput = {num_tokens / duration_s:.0f} tokens/second on {GPU_CONFIG}.{COLOR['ENDC']}"
@@ -242,8 +242,8 @@ def main():
     model = Model()
     # model_outputs = model.generate.remote(questions)
     # generated_text = model_outputs[0].outputs[0].text
-    generated_text = model.generate.remote(questions)
-    result = prompt + code_prefix + generated_text
+    generated_text = model.generate.remote(questions, n=2)
+    result = prompt + code_prefix + generated_text[0][0]
 
     # evaluate generated text with another modal function
     verify = modal.Function.lookup("verifier", "verify_lean4_file")
