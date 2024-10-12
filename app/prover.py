@@ -98,7 +98,7 @@ image = (
         # "uv venv",
         # ". .venv/bin/activate",
         "uv pip install --quiet --no-progress --system --compile-bytecode .[server]",
-        "uv pip install --quiet --no-progress --system --compile-bytecode vllm==0.4.1",
+        "uv pip install --quiet --no-progress --system --compile-bytecode vllm==0.6.2",
         "uv pip install --quiet --no-progress --system --compile-bytecode hatchling editables ninja setuptools packaging wheel",
         "uv pip install --quiet --no-progress --system --compile-bytecode flash-attn --no-build-isolation",
         "uv pip install --quiet --no-progress --system --compile-bytecode hf-transfer",

@@ -23,9 +23,8 @@ build-backend = "hatchling.build"
 server = [
     "pytz==2022.1",
     "easydict==1.13",
-    "torch==2.2.1",
-    "transformers==4.40.1",
-    "vllm==0.4.1",
+    "transformers==4.45.1",
+    "vllm==0.6.2",
     "numpy",
     "pandas",
     "tabulate",
